@@ -832,19 +832,19 @@ class FloatParameter(Parameter[float]):
         """
         return float(x)
 
-    def normalize(self, x):
+    def serialize(self, x):
         """
-        Coerces the value to a ``float``.
+        Serializes a float via ``str(float(x))``.
 
-        Without this, an ``int`` value (e.g. ``5``) passed to a
-        ``FloatParameter`` is stored as an ``int`` and serialized as ``"5"``,
-        while ``5.0`` serializes as ``"5.0"`` -- two equal values (``5 == 5.0``)
-        then produce different ``task_id`` s, which breaks scheduler/worker task
-        lookups. Normalizing to ``float`` makes both canonicalize identically.
+        Coercing to ``float`` first means an ``int`` value (e.g. ``5``) passed to
+        a ``FloatParameter`` serializes to ``"5.0"`` just like ``5.0`` does.
+        Otherwise ``serialize(5)`` -> ``"5"`` while ``serialize(5.0)`` -> ``"5.0"``,
+        so two equal values (``5 == 5.0``) produce different ``task_id`` s, which
+        breaks scheduler/worker task lookups. This is done in ``serialize`` (not
+        ``normalize``) so the stored value's type is unchanged and the existing
+        wrong-type warning still fires.
         """
-        if x is None:
-            return None
-        return float(x)
+        return str(float(x))
 
 
 class OptionalFloatParameter(OptionalParameterMixin[float], FloatParameter):  # type: ignore[misc]
