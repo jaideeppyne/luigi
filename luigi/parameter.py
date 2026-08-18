@@ -832,6 +832,20 @@ class FloatParameter(Parameter[float]):
         """
         return float(x)
 
+    def normalize(self, x):
+        """
+        Coerces the value to a ``float``.
+
+        Without this, an ``int`` value (e.g. ``5``) passed to a
+        ``FloatParameter`` is stored as an ``int`` and serialized as ``"5"``,
+        while ``5.0`` serializes as ``"5.0"`` -- two equal values (``5 == 5.0``)
+        then produce different ``task_id`` s, which breaks scheduler/worker task
+        lookups. Normalizing to ``float`` makes both canonicalize identically.
+        """
+        if x is None:
+            return None
+        return float(x)
+
 
 class OptionalFloatParameter(OptionalParameterMixin[float], FloatParameter):  # type: ignore[misc]
     """Class to parse optional float parameters."""
